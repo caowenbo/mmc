@@ -1,5 +1,5 @@
 # mmc
-mini mariadb cli tool
+mini mariadb(mysql) cli tool
 
 ### usage
 `mmc host user password sql`
