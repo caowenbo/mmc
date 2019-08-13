@@ -1,7 +1,11 @@
 # mmc
 mini mariadb cli tool
->usage:mmc host user password sql
->return the data with json format
+
+### usage
+`mmc host user password sql`
+
+### result
+`return the data with json format`
 
 *example*
 ```
