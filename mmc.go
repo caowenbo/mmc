@@ -15,15 +15,15 @@ const SHOW = "show"
 
 type SelectResultRow map[string]interface{}
 
-func GetSelect(rows *sql.Rows) []SelectResultRow {
+func GetSelect(rows *sql.Rows) ([]SelectResultRow, error) {
 	var selectResult []SelectResultRow
 	cols, err := rows.Columns()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	colTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	for rows.Next() {
 		vals := make([]interface{}, len(cols))
@@ -50,7 +50,7 @@ func GetSelect(rows *sql.Rows) []SelectResultRow {
 		}
 		selectResult = append(selectResult, selectResultRow)
 	}
-	return selectResult
+	return selectResult, nil
 }
 func ExecSql(strSql string, db *sql.DB) error {
 	if strings.HasPrefix(strings.ToLower(strSql), SELECT) || strings.HasPrefix(strings.ToLower(strSql), SHOW) {
@@ -59,11 +59,14 @@ func ExecSql(strSql string, db *sql.DB) error {
 			fmt.Printf(`{"code":5,"message":"exec the sql:%s,error:%s","result":""}`, strSql, err.Error())
 			return err
 		} else {
-			result := GetSelect(rows)
-			jsonStr, err := json.Marshal(result)
-
+			result, err := GetSelect(rows)
 			if err != nil {
 				fmt.Printf(`{"code":6,"message":"query with sql:%s,error:%s","result":""}`, strSql, err.Error())
+				return err
+			}
+			jsonStr, err := json.Marshal(result)
+			if err != nil {
+				fmt.Printf(`{"code":7,"message":"query with sql:%s,error:%s","result":""}`, strSql, err.Error())
 				return err
 			}
 			fmt.Printf(`{"code":0,"message":"OK","result":%s}`, jsonStr)
